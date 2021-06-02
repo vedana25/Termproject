@@ -38,14 +38,6 @@ public class Battle extends Thread{
 				if(game.player1.getnumOfobj()==0) whoWin=2;
 				else whoWin=1;
 				isFinished=true;
-				for(int i = 0; i<10; i++)// make thread list.
-				{
-					for(int j=0;j<10;j++) {
-						if(BoardManager.ENTITIES_ONBOARD[i][j]!=null) {
-							System.out.println(BoardManager.ENTITIES_ONBOARD[i][j].getHealth());
-						}
-					}
-				}
 				break; // end if all objects of any side are dead
 			}
 			try {

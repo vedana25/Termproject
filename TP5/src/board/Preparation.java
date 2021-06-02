@@ -15,10 +15,9 @@ public class Preparation extends Thread {
 	String input=null;
 
 	public void run() {
-		
-		baseBoard.drawBattleBoard(BoardManager.ENTITIES_ONBOARD, Board.round);
-		game.player1.setReady(true);
-		game.player2.setReady(true);
+
+		game.player1.setReady(false);
+		game.player2.setReady(false);
 	}
 	public void drawBoard(Board board) {
 		gameTable.getBoardPanel().drawBoard(board);

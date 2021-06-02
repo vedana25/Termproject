@@ -3,7 +3,7 @@ package entity;
 public class Warrior3 extends Warrior{
 	
 	public Warrior3() {
-		setName("Warior3");
+		setName("Warrior3");
 		setHealth(200);
 		setMaxHealth(200);
 		setAtk(20);

@@ -28,12 +28,15 @@ public class Board {
 	
 	private static int finished=0;
 
+	public Board() {
+		this.initialize();	
+	}
+	
 	//write a line about an attack on the log
 	public static void printOnlog(gameObject attacker, gameObject target, int damage) {
 		System.out.println(attacker.getName()+" dealt "+damage+" damages to "+target.getName()+"(Hp: "+ target.getHealth()+")");
 		if(target.getHealth()<=0) {
 			System.out.println(attacker.getName()+" killed "+target.getName());
-			baseBoard.drawBattleBoard(BoardManager.ENTITIES_ONBOARD, Board.round);
 
 		}
 	}
@@ -80,36 +83,60 @@ public class Board {
 	
 	//move all objects on the board to the storages after end of a round
 	public void clearBoard(Table gameTable) {
+		
+		this.player1.setnumOfobj(0);
+		this.player2.setnumOfobj(0);
+
 		for(int i=0;i<10;i++) {
 			for(int j=0;j<10;j++) {
-				gameObject e=BoardManager.ENTITIES_ONBOARD[i][j];
-				if(e!=null) {
-					if(e.getPlayer()==player1)  {
-						gameTable.getBoardPanel().getUpperStoragePanel(e.getCellNumber()).assignChampion(gameTable.getGameBoard(), e);
-						gameTable.getBoardPanel().getTilePanel(e.getX()*10+e.getY()).removeAll();
-					}else {
-						gameTable.getBoardPanel().getLowerStoragePanel(e.getCellNumber()).assignChampion(gameTable.getGameBoard(), e);
-						gameTable.getBoardPanel().getTilePanel(e.getX()*10+e.getY()).removeAll();
+				gameTable.getBoardPanel().getTilePanel(10*i+j).removeAll();
+				gameTable.getBoardPanel().getTilePanel(10*i+j).setTileObject(null);
+				if(BoardManager.ENTITIES_ONBOARD[i][j]!=null) {
+					gameObject e=BoardManager.ENTITIES_ONBOARD[i][j];
+					if(e.getPlayer()==gameTable.getGameBoard().player1) {
+						int cellNum = storage1.firstEmpty();
+						gameTable.getBoardPanel().getStoragePanel(e.getPlayer(), cellNum).assignChampion(gameTable.getGameBoard(), e);
+						e.setCellNum(cellNum);
+						e.setInstorage(true);	
+						storage1.isTaken.put(cellNum,true);
+						BoardManager.ENTITIES_ONBOARD[i][j]=null;
+					}
+					else {
+						int cellNum = storage2.firstEmpty();
+						gameTable.getBoardPanel().getStoragePanel(e.getPlayer(), cellNum).assignChampion(gameTable.getGameBoard(), e);
+						e.setCellNum(cellNum);
+						e.setInstorage(true);	
+						storage2.isTaken.put(cellNum,true);
+						BoardManager.ENTITIES_ONBOARD[i][j]=null;
+
 
 					}
 					e.setInstorage(true);
 					e.setHealth(e.getMaxHealth());
 				}
+
 			}
 		}
 	}
+	
 	
 	
 	//judge which player won the game
 	public boolean judge() {
 		if(player1.getHp()==0 || player2.getHp()==0) {
 			this.printScore();
-			if(player1.getHp()==0) {
+			if(player1.getHp()==0 && player2.getHp()==0) {
+				System.out.println("Final Result: Draw");
+				JOptionPane.showMessageDialog(null, "Final Result: Draw", "Final Winner", 0);
+				return true;				
+			}
+			else if(player1.getHp()==0) {
 				System.out.println("Final Winner: Player2");
+				JOptionPane.showMessageDialog(null, "Final Winner: Player2", "Final Winner", 0);
 				return true;
 			}
 			else {
-				System.out.println("Final Winner: Player1");
+				JOptionPane.showMessageDialog(null, "Final Winner: Player1", "Final Winner", 0);
 				return true;
 			}
 		}else {
@@ -146,6 +173,8 @@ public class Board {
 		}
 		
 		this.clearBoard(gameTable);
+		Table.p1=0;
+		Table.p2=1;
 		gameTable.getGameBoard().player1.setReady(false);
 		gameTable.getGameBoard().player2.setReady(false);
 

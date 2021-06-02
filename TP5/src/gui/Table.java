@@ -11,7 +11,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import gui.Table;
@@ -19,6 +23,7 @@ import board.Battle;
 import board.Board;
 import board.BoardManager;
 import board.BoardUtils;
+import board.Player;
 import entity.gameObject;
 
 
@@ -31,13 +36,12 @@ public final class Table extends JFrame{
    
     private Board battleBoard;
     private final BoardPanel boardPanel;
-    private UpperStoragePanel upperStoragePanel;
-    private LowerStoragePanel lowerStoragePanel;
+    private StoragePanel StoragePanel;
 
     private RandomShop randomFrame1;
     private RandomShop randomFrame2;
     private gameObject sourceObject;
-    //private String movingObjectName;
+
     public int start;
     
     public static int p1 = 0;
@@ -48,13 +52,12 @@ public final class Table extends JFrame{
     private Color upDarkTileColor = Color.decode("#CCD1D1");
     private Color downLightTileColor = Color.decode("#BFCDCA");
     private Color downDarkTileColor = Color.decode("#AAB8B8");
-    
-    //private gameObject sourchObjectName;
 	
     private final JFrame gameFrame;
 
     public Table(Board game) {
     	this.battleBoard=game;
+    	game.initialize();
 		this.gameFrame = new JFrame("Auto-chess Game");
 		this.gameFrame.setLayout(new BorderLayout());
 		this.boardPanel = new BoardPanel();
@@ -67,37 +70,7 @@ public final class Table extends JFrame{
     	getBoardPanel().drawBoard(getGameBoard());
     	this.start = JOptionPane.showConfirmDialog(null, getGameBoard().popupScore(), "Start new game?", 0);
 	 }
-
-    private JFrame getGameFrame() {
-        return this.gameFrame;
-    }
-    
-    public Board getGameBoard() {
-        return this.battleBoard;
-    }
-    
-    
-    public BoardPanel getBoardPanel() {
-        return this.boardPanel;
-    }
-    
-    RandomShop getRandomFrame1() {
-        return this.randomFrame1;
-    }
  
-    RandomShop getRandomFrame2() {
-        return this.randomFrame2;
-    }
-    
-    UpperStoragePanel getUpperStoragePanel(){
-    	return this.upperStoragePanel;
-    }
-    
-    LowerStoragePanel getLowerStoragePanel() {
-    	return this.lowerStoragePanel;
-    }
-    
-    
     
 	private static void center(final JFrame frame) {
         final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -128,17 +101,17 @@ public final class Table extends JFrame{
     
     public class BoardPanel extends JPanel {
         final List<TilePanel> boardTiles;
-        final List<UpperStoragePanel> upperStorageTiles;
-        final List<LowerStoragePanel> lowerStorageTiles;
+        final List<StoragePanel> upperStorageTiles;
+        final List<StoragePanel> lowerStorageTiles;
 
 
         BoardPanel() {
             super(new GridLayout(12,10));
             this.upperStorageTiles = new ArrayList<>();
             for(int i=0; i<10; i++) {
-            	upperStoragePanel = new UpperStoragePanel(i);
-                this.upperStorageTiles.add(upperStoragePanel);
-            	add(upperStoragePanel);
+            	StoragePanel = new StoragePanel(battleBoard.player1, i);
+                this.upperStorageTiles.add(StoragePanel);
+            	add(StoragePanel);
 
             }
             this.boardTiles = new ArrayList<>();
@@ -148,10 +121,11 @@ public final class Table extends JFrame{
                 add(tilePanel);
             }
             this.lowerStorageTiles = new ArrayList<>();
+
             for(int i=0; i<10; i++) {
-            	lowerStoragePanel = new LowerStoragePanel(i);
-                this.lowerStorageTiles.add(lowerStoragePanel);
-            	add(lowerStoragePanel);
+            	StoragePanel = new StoragePanel(battleBoard.player2, i);
+                this.lowerStorageTiles.add(StoragePanel);
+            	add(StoragePanel);
             }
             setPreferredSize(BOARD_PANEL_DIMENSION);
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -165,7 +139,7 @@ public final class Table extends JFrame{
         
         public void drawBoard(final Board board) {
             removeAll();
-            for (final UpperStoragePanel upperStorageTile : upperStorageTiles) {
+            for (final StoragePanel upperStorageTile : upperStorageTiles) {
                 upperStorageTile.drawTile(board);
                 add(upperStorageTile);           	
             }
@@ -173,7 +147,7 @@ public final class Table extends JFrame{
                 boardTile.drawTile(board);
                 add(boardTile);
             }
-            for (final LowerStoragePanel lowerStorageTile : lowerStorageTiles) {
+            for (final StoragePanel lowerStorageTile : lowerStorageTiles) {
                 lowerStorageTile.drawTile(board);
                 add(lowerStorageTile);           	
             }
@@ -181,44 +155,39 @@ public final class Table extends JFrame{
             repaint();
         }
         
-        public UpperStoragePanel getUpperStoragePanel(int i) {
-        	return upperStorageTiles.get(i);
-        }
-        
-        public LowerStoragePanel getLowerStoragePanel(int i) {
-        	return lowerStorageTiles.get(i);
+        public StoragePanel getStoragePanel(Player player, int i) {
+        	if (player == battleBoard.player1) return upperStorageTiles.get(i);
+        	else return lowerStorageTiles.get(i);
         }
 
+
     }
-	public class UpperStoragePanel extends JPanel{
+	public class StoragePanel extends JPanel{
 		private final int storageId;
 		private gameObject EntityObject;
 		private JPanel panel;
+		private Player player;
 
-		UpperStoragePanel(final int storageId){
+		StoragePanel(Player player, final int storageId){
 			super(new GridBagLayout());
 			this.storageId = storageId;
 			this.panel = this;
+			this.player = player;
 			
 			setPreferredSize(STORAGE_PANEL_DIMENSION);
-            setBorder(BorderFactory.createMatteBorder(0, 0, 10, 0, Color.decode("#273746")));
-            
+			if(player == getGameBoard().player1) setBorder(BorderFactory.createMatteBorder(0, 0, 10, 0, Color.decode("#273746")));
+			else setBorder(BorderFactory.createMatteBorder(10, 0, 0, 0, Color.decode("#273746")));
             addMouseListener(new MouseListener() {
                 @Override
                 public void mouseClicked(final MouseEvent event) {
-        			EntityObject = getGameBoard().getStorage1().get(storageId);
-        			
+        			if(player ==battleBoard.player1) EntityObject = getGameBoard().getStorage1().get(storageId);
+        			else EntityObject = getGameBoard().getStorage2().get(storageId);
                     if (isRightMouseButton(event)) {
                         sourceObject = null;
                     } else if (isLeftMouseButton(event)) {
                     	sourceObject = EntityObject;
-                    	
-                    	//int x, int y;
-                    	
-                    	
-                    	//Take out from storage to board - Setting isInStorage
-       					//getGameBoard().getStorage1().takeOut(getGameBoard().getP1choice(), x, y);
-    					
+            			System.out.println(EntityObject);
+
        					//Remove from Storage
        					panel.removeAll();
        					panel.revalidate();
@@ -260,7 +229,7 @@ public final class Table extends JFrame{
 
 		}
 		
-		UpperStoragePanel get() {
+		StoragePanel get() {
 			return this;
 		}
 		
@@ -272,96 +241,36 @@ public final class Table extends JFrame{
         }
         
         void assignTileColor() {
-		    setBackground((this.storageId)%2==0 ? Color.decode("#85929E") : Color.decode("#5D6D7E"));
+		    if(player == battleBoard.player1 )setBackground((this.storageId)%2==0 ? Color.decode("#85929E") : Color.decode("#5D6D7E"));
+		    else setBackground((this.storageId)%2!=0 ? Color.decode("#85929E") : Color.decode("#5D6D7E"));
         }
         
         public void assignChampion(final Board board, final gameObject Entity) {
-        	JLabel newLabel = new JLabel(Entity.getName());
-        	add(newLabel);
+        	String p;
+        	if(Entity.getPlayer()==board.player1) p = "p1";
+        	else p = "p2";
+        	
+            try{
+                final BufferedImage image = ImageIO.read(new File("art/champions/"+ p + Entity.getName()+".png"));
+                add(new JLabel(new ImageIcon(image)));
+            } catch(final IOException e) {
+                e.printStackTrace();
+            }
+        	
+            SwingUtilities.invokeLater
+            (
+                 new Runnable()  {
+                      public void run()     {
+                	    getBoardPanel().drawBoard(getGameBoard());
+
+                      }
+                  }
+            );
+        	
         }
         
         void removeChampion() {
         	removeAll();
-        }
-        
-	}
-	
-	public class LowerStoragePanel extends JPanel{
-		private final int storageId;
-		private gameObject EntityObject;
-		private JPanel panel;
-		
-		LowerStoragePanel(final int storageId){
-			super(new GridBagLayout());
-			this.storageId = storageId;
-			this.panel = this;
-			setPreferredSize(STORAGE_PANEL_DIMENSION);
-            setBorder(BorderFactory.createMatteBorder(10, 0, 0, 0, Color.decode("#273746")));
-            
-            addMouseListener(new MouseListener() {
-                @Override
-                public void mouseClicked(final MouseEvent event) {
-        			EntityObject = getGameBoard().getStorage2().get(storageId);
-        			
-                    if (isRightMouseButton(event)) {
-                        sourceObject = null;
-                    } else if (isLeftMouseButton(event)) {
-                    	sourceObject = EntityObject;
-    					
-       					//Remove from Storage
-       					panel.removeAll();
-       					panel.revalidate();
-       					panel.repaint();
-       					
-                        }
-                    
-                
-	                SwingUtilities.invokeLater
-	                (
-	                     new Runnable()  {
-	                          public void run()     {
-                        	    getBoardPanel().drawBoard(getGameBoard());
-                        	    
-
-	                          }
-	                      }
-	                );
-	                
-                }
-
-                @Override
-                public void mouseExited(final MouseEvent e) {
-                }
-
-                @Override
-                public void mouseEntered(final MouseEvent e) {
-                }
-
-                @Override
-                public void mouseReleased(final MouseEvent e) {
-                }
-
-                @Override
-                public void mousePressed(final MouseEvent e) {
-                }
-            });
-            
-            validate();
-		}
-        void drawTile(final Board board) {
-            assignTileColor();
-            validate();
-            repaint();
-        }
-        
-        void assignTileColor() {
-		    setBackground((this.storageId)%2!=0 ? Color.decode("#85929E") : Color.decode("#5D6D7E"));
-        }
-        
-        public void assignChampion(final Board board, final gameObject Entity) {
-        	JLabel newLabel = new JLabel(Entity.getName());
-        	newLabel.setForeground(Color.WHITE);
-        	add(newLabel);
         }
         
 	}
@@ -389,6 +298,7 @@ public final class Table extends JFrame{
         			
                     if (isRightMouseButton(event)) {
                     } else if (isLeftMouseButton(event)) {
+
                     	//Assign Name Label to the tile
                     	tilePanel.assignChampion(battleBoard, sourceObject);
                     	tilePanel.setTileObject(sourceObject);
@@ -397,14 +307,15 @@ public final class Table extends JFrame{
         				int cellNum = sourceObject.getCellNumber();
         				if(sourceObject.getPlayer()==battleBoard.player1) { //Player 1
         					getGameBoard().storage1.takeOut(cellNum, row, col);
+
         					BoardManager.ENTITIES_ONBOARD[row][col] = getGameBoard().storage1.get(cellNum);
         					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(getGameBoard().player1);//temporary code
         					BoardManager.ENTITIES_ONBOARD[row][col].setInstorage(false);   		
         					        					
         					getGameBoard().player1.setnumOfobj(getGameBoard().player1.getnumOfobj()+1);
-        					
+
 							//If the number of gameOject on board reach the limit, set ready
-        					if((Board.round + 1)*2 == p1/2+1) getGameBoard().player1.setReady(true);
+        					if((Board.round + 1)*2 == p1/2+1 ||getGameBoard().storage1.isEmpty()) getGameBoard().player1.setReady(true);
         					p1=p1+2;
 
         				}
@@ -414,11 +325,21 @@ public final class Table extends JFrame{
         					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(getGameBoard().player2);//temporary code
         					BoardManager.ENTITIES_ONBOARD[row][col].setInstorage(false);
         					getGameBoard().player2.setnumOfobj(getGameBoard().player2.getnumOfobj()+1);
-       							        					
-        					if((Board.round + 1)*2 == (p2-1)/2+1) getGameBoard().player2.setReady(true);
+       						
+        					if((Board.round + 1)*2 == (p2-1)/2+1 || getGameBoard().storage2.isEmpty()) getGameBoard().player2.setReady(true);
         					p2=p2+2;
         				}
                      }
+                    
+	                SwingUtilities.invokeLater
+	                (
+	                     new Runnable()  {
+	                          public void run()     {
+	                        	  getBoardPanel().drawBoard(getGameBoard());			
+          						          					
+	              		        }
+	                      }
+	                );
                 }
                 
                 @Override
@@ -443,7 +364,7 @@ public final class Table extends JFrame{
 
         void drawTile(final Board board) {
             assignTileColor();
-            damageColor();
+            if(tileObject!=null)damageColor();
             validate();
             repaint();
         }
@@ -460,9 +381,18 @@ public final class Table extends JFrame{
         	}
         }
         public void assignChampion(final Board board, final gameObject Entity) {
-        	JLabel newLabel = new JLabel(Entity.getName());
-        	if(Entity.getPlayer()==battleBoard.player2) newLabel.setForeground(Color.WHITE);
-        	add(newLabel);
+        	String player="p1";
+        	if(Entity==null)System.out.println("null");
+        	if(Entity.getPlayer()==board.player1) player = "p1";
+        	else player = "p2";
+        	
+            try{
+                final BufferedImage image = ImageIO.read(new File("art/champions/"+ player + Entity.getName()+".png"));
+                add(new JLabel(new ImageIcon(image)));
+            } catch(final IOException e) {
+                e.printStackTrace();
+            }
+        	
         }
         
         public void damageColor() {
@@ -470,12 +400,16 @@ public final class Table extends JFrame{
         	if(this.getTileObject()!=null) {
         	if(this.getTileObject().getHealth()<this.getTileObject().getMaxHealth()*0.9 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.7) {
               	damaged=1;}
-            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.7 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.4) {
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.7 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.5) {
             	damaged=2;}
-            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.4 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0) {
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.5 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.3) {
             	damaged=3;}
-            	else if(this.getTileObject().getHealth()==0) {
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.3 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0) {
             	damaged=4;}
+            	else if(this.getTileObject().getHealth()<=0) {
+            		this.getTileObject().setAlive(false);
+            		this.removeAll();
+            	}
         	}
         	if(damaged==1) setBackground(Color.decode("#E6B0AA"));
         	else if(damaged==2) setBackground(Color.decode("#CD6155"));
@@ -490,6 +424,29 @@ public final class Table extends JFrame{
         	this.tileObject = currentObject;
         }
     }
-   
+    
+    
+    public Board getGameBoard() {
+        return this.battleBoard;
+    }
+    
+    
+    public BoardPanel getBoardPanel() {
+        return this.boardPanel;
+    }
+    
+    RandomShop getRandomFrame1() {
+        return this.randomFrame1;
+    }
+ 
+    RandomShop getRandomFrame2() {
+        return this.randomFrame2;
+    }
+    
+    StoragePanel getStoragePanel(){
+    	return this.StoragePanel;
+    }
+    
+
     
 }

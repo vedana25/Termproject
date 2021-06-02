@@ -10,12 +10,15 @@ import board.Preparation;
 import gui.RandomShop;
 import gui.Table;
 public class runGame extends Thread{
-	static Board game;
+	public static Board game = new Board();
+	static Table gameTable  = new Table(game);
+
 	Thread preparation;
 	Thread battle;
 	Thread randomShop;
 	
 	public static void main (String[] args) {
+	
 		Thread startgame=new runGame();
 		startgame.start();
 		
@@ -33,11 +36,7 @@ public class runGame extends Thread{
 	}
 	
 	public void run() {
-		
-		game = new Board();
-		game.initialize();
-		Table gameTable = new Table(game);	
-		
+			
 		if(wantTostart(gameTable)==0) {
 			while(!game.isFinish) {
 				
@@ -49,11 +48,18 @@ public class runGame extends Thread{
 				randomShop.start();
 				try {randomShop.join();
 				} catch (Exception e) {}
-				
+
 				//preparation phase: move objects to the board
 				preparation.start();
-				try {preparation.join();
-				} catch (Exception e) {}
+		        while(true) {        	
+		        	if(game.player1.isReady()==true&&game.player2.isReady()==true) {
+		    			preparation.interrupt();
+		        		break;
+		        	}try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {}
+		        }
+
 				
 				//battle phase
 				Battle.isFinished = false;
@@ -75,6 +81,10 @@ public class runGame extends Thread{
 			}
 			System.out.println("game end");
 		}
+	}
+	
+	public static Table getTable() {
+		return gameTable; 
 	}
 }
 

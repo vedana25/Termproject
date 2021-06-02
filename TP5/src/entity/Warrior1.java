@@ -4,7 +4,7 @@ public class Warrior1 extends Warrior{
 
 	//constructor
 	public Warrior1() {
-		setName("Warior1");
+		setName("Warrior1");
 		setHealth(100);
 		setMaxHealth(100);
 		setAtk(10);

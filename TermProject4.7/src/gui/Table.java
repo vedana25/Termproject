@@ -272,15 +272,35 @@ public final class Table extends JFrame{
         public void assignChampion(final Board board, final gameObject Entity) {
         	this.removeAll();
         	String p;
-        	if(Entity.getPlayer()==Board.player1) p = "p1";
+        	if(Entity.getPlayer()==getGameBoard().player1)  p= "p1";
         	else p = "p2";
-        	
-            try{
-                final BufferedImage image = ImageIO.read(new File("art/champions/"+ p + Entity.getName()+".png"));
-                add(new JLabel(new ImageIcon(image)));
-            } catch(final IOException e) {
-                e.printStackTrace();
-            }
+            BufferedImage image = null;
+			try {
+				image = ImageIO.read(new File("art/champions/"+ p + Entity.getName()+".png"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+            Image fitImage = image.getScaledInstance(40, 30, Image.SCALE_AREA_AVERAGING);
+            JLabel name = new JLabel(Entity.getName());
+            JLabel icon = new JLabel(new ImageIcon(fitImage));
+            name.setFont(new Font("Verdana", Font.BOLD, 6));
+            name.setForeground(Color.WHITE);
+        	GridBagConstraints gbc = new GridBagConstraints();
+        	gbc.fill = GridBagConstraints.BOTH;
+
+            gbc.gridx=0;  
+            gbc.gridy=0;
+            gbc.gridwidth = 3;
+            gbc.gridheight = 1;
+            add(name, gbc);
+            gbc.gridx=0;  
+            gbc.gridy=1;
+            gbc.gridwidth = 3;
+            gbc.gridheight = 5;
+            add(icon, gbc);
+            
         	this.revalidate();
         	this.repaint();
             SwingUtilities.invokeLater
@@ -463,7 +483,6 @@ public final class Table extends JFrame{
             
             hp.setFont(new Font("Verdana", Font.BOLD, 7));
             blank.setFont(new Font("Verdana", Font.BOLD, 7));
-            //damageColor(hp);
             
             gbc.gridx=0;  
             gbc.gridy=0;
@@ -598,6 +617,7 @@ class Console {
         textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
         textArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setSize(LOG_FRAME_DIMENSION);
         frame.add(scrollPane, BorderLayout.EAST);
         scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {  

@@ -190,12 +190,12 @@ public final class Table extends JFrame{
 			this.player = player;
 			
 			setPreferredSize(STORAGE_PANEL_DIMENSION);
-			if(player == getGameBoard().player1) setBorder(BorderFactory.createMatteBorder(0, 0, 10, 0, Color.decode("#273746")));
+			if(player == Board.player1) setBorder(BorderFactory.createMatteBorder(0, 0, 10, 0, Color.decode("#273746")));
 			else setBorder(BorderFactory.createMatteBorder(10, 0, 0, 0, Color.decode("#273746")));
             addMouseListener(new MouseListener() {
                 @Override
                 public void mouseClicked(final MouseEvent event) {
-        			if(player ==battleBoard.player1) EntityObject = getGameBoard().getStorage1().get(storageId);
+        			if(player ==Board.player1) EntityObject = getGameBoard().getStorage1().get(storageId);
         			else EntityObject = getGameBoard().getStorage2().get(storageId);
                     if (isRightMouseButton(event)) {
                         sourceObject = null;
@@ -312,21 +312,20 @@ public final class Table extends JFrame{
                     if (isRightMouseButton(event)) {
                     } else if (isLeftMouseButton(event)) {
 
-                    	//Assign Name Label to the tile
-
-                    	tilePanel.setTileObject(sourceObject);
-                    	
-                    	//Taking out the gameObject to the board
-        				int cellNum = sourceObject.getCellNumber();
-        				if(sourceObject.getPlayer()==Board.player1) { //Player 1
-        					getGameBoard().storage1.takeOut(cellNum, row, col);
-        					
+                    	if(sourceObject!=null) {
+        				if(sourceObject.getPlayer()==Board.player1 && tileId <50) { //Player 1
+                        	//Assign icon to the tile
+                        	tilePanel.setTileObject(sourceObject);	
+                        	//Taking out the gameObject to the board
+            				int cellNum = sourceObject.getCellNumber();
+            				
+        					getGameBoard().storage1.takeOut(cellNum, row, col);       					
         					BoardManager.ENTITIES_ONBOARD[row][col] = getGameBoard().storage1.get(cellNum);
         					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(Board.player1);//temporary code
         					BoardManager.ENTITIES_ONBOARD[row][col].setInstorage(false);   		
         					        					
         					Board.player1.setnumOfobj(Board.player1.getnumOfobj()+1);
-
+        					sourceObject = null;
 							//If the number of gameOject on board reach the limit, set ready
         					p1movedObj++;
         					if(p1movedObj==Board.maxObj||Board.player1.getStorage().isEmpty()==true) {
@@ -334,17 +333,30 @@ public final class Table extends JFrame{
         					}
 
         				}
-        				else { //Player2
+        				else if (sourceObject.getPlayer()==Board.player2 && tileId >=50){ //Player2
+        					
+                        	//Assign icon to the tile
+                        	tilePanel.setTileObject(sourceObject);	
+                        	//Taking out the gameObject to the board
+            				int cellNum = sourceObject.getCellNumber();
+        					
         					getGameBoard().storage2.takeOut(cellNum, row, col);
         					BoardManager.ENTITIES_ONBOARD[row][col] = getGameBoard().storage2.get(cellNum);
-        					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(getGameBoard().player2);//temporary code
+        					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(Board.player2);//temporary code
         					BoardManager.ENTITIES_ONBOARD[row][col].setInstorage(false);
-        					getGameBoard().player2.setnumOfobj(getGameBoard().player2.getnumOfobj()+1);
+        					Board.player2.setnumOfobj(Board.player2.getnumOfobj()+1);
        						
+        					sourceObject=null;
         					p2movedObj++;
         					if(p2movedObj==Board.maxObj||getGameBoard().player2.getStorage().isEmpty()==true) {
-        						getGameBoard().player2.setReady(true);
+        						Board.player2.setReady(true);
         					}
+        					
+        				}
+        				else {
+	                		getBoardPanel().getStoragePanel(sourceObject.getPlayer(), sourceObject.getCellNum()).assignChampion(getGameBoard(), sourceObject);
+        					sourceObject=null;
+	                		System.out.println("You cannot place the champion there. \n You may place your champions on your side only.");
         				}
                      }
                     
@@ -357,6 +369,7 @@ public final class Table extends JFrame{
 	              		        }
 	                      }
 	                );
+                    }
                 }
                 
                 @Override

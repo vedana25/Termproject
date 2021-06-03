@@ -63,7 +63,7 @@ public class Board {
 			nameWithColor=BLUE+object.getName()+RESET;
 		}
 		else nameWithColor=RED+object.getName()+RESET;
-		return nameWithColor;
+		return object.getName();
 	}
 	
 	public int getRound() {

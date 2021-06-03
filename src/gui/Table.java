@@ -9,11 +9,15 @@ import static javax.swing.SwingUtilities.isRightMouseButton;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -28,16 +32,14 @@ import board.BoardManager;
 import board.BoardUtils;
 import board.Player;
 import entity.gameObject;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 
 public final class Table extends JFrame{
 
-    private static final Dimension OUTER_FRAME_DIMENSION = new Dimension(657, 640);
+    private static final Dimension OUTER_FRAME_DIMENSION = new Dimension(1082, 640);
     private static final Dimension BOARD_PANEL_DIMENSION = new Dimension(600,600);
     private static final Dimension STORAGE_PANEL_DIMENSION = new Dimension(20, 20);
     private static final Dimension TILE_PANEL_DIMENSION = new Dimension(20, 20);
+    
    
     private Board battleBoard;
     private final BoardPanel boardPanel;
@@ -72,6 +74,14 @@ public final class Table extends JFrame{
         center(this.gameFrame);
     	this.gameFrame.setVisible(true);
     	
+        Console console = null;
+		try {
+			console = new Console(gameFrame);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
         SwingUtilities.invokeLater
         (
              new Runnable()  {
@@ -91,7 +101,7 @@ public final class Table extends JFrame{
         final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         final int w = frame.getSize().width;
         final int h = frame.getSize().height;
-        final int x = (dim.width - w) / 2;
+        final int x = ((dim.width - w) / 2);
         final int y = (dim.height - h) / 2;
         frame.setLocation(x, y);
     }
@@ -195,7 +205,7 @@ public final class Table extends JFrame{
             addMouseListener(new MouseListener() {
                 @Override
                 public void mouseClicked(final MouseEvent event) {
-        			if(player ==battleBoard.player1) EntityObject = getGameBoard().getStorage1().get(storageId);
+        			if(player ==Board.player1) EntityObject = getGameBoard().getStorage1().get(storageId);
         			else EntityObject = getGameBoard().getStorage2().get(storageId);
                     if (isRightMouseButton(event)) {
                         sourceObject = null;
@@ -312,41 +322,51 @@ public final class Table extends JFrame{
                     if (isRightMouseButton(event)) {
                     } else if (isLeftMouseButton(event)) {
 
-                    	//Assign Name Label to the tile
-
-                    	tilePanel.setTileObject(sourceObject);
-                    	
-                    	//Taking out the gameObject to the board
-        				int cellNum = sourceObject.getCellNumber();
-        				if(sourceObject.getPlayer()==Board.player1) { //Player 1
-        					getGameBoard().storage1.takeOut(cellNum, row, col);
-        					
+                    	if(sourceObject!=null) {
+        				if(sourceObject.getPlayer()==Board.player1 && tileId <50) { //Player 1
+                        	//Assign icon to the tile
+                        	tilePanel.setTileObject(sourceObject);	
+                        	//Taking out the gameObject to the board
+            				int cellNum = sourceObject.getCellNumber();
+            				
+        					getGameBoard().storage1.takeOut(cellNum, row, col);       					
         					BoardManager.ENTITIES_ONBOARD[row][col] = getGameBoard().storage1.get(cellNum);
         					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(Board.player1);//temporary code
         					BoardManager.ENTITIES_ONBOARD[row][col].setInstorage(false);   		
         					        					
         					Board.player1.setnumOfobj(Board.player1.getnumOfobj()+1);
-
+        					sourceObject = null;
 							//If the number of gameOject on board reach the limit, set ready
         					p1movedObj++;
-        					System.out.println(p1movedObj);
         					if(p1movedObj==Board.maxObj||Board.player1.getStorage().isEmpty()==true) {
         						Board.player1.setReady(true);
         					}
 
         				}
-        				else { //Player2
+        				else if (sourceObject.getPlayer()==Board.player2 && tileId >=50){ //Player2
+        					
+                        	//Assign icon to the tile
+                        	tilePanel.setTileObject(sourceObject);	
+                        	//Taking out the gameObject to the board
+            				int cellNum = sourceObject.getCellNumber();
+        					
         					getGameBoard().storage2.takeOut(cellNum, row, col);
         					BoardManager.ENTITIES_ONBOARD[row][col] = getGameBoard().storage2.get(cellNum);
-        					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(getGameBoard().player2);//temporary code
+        					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(Board.player2);//temporary code
         					BoardManager.ENTITIES_ONBOARD[row][col].setInstorage(false);
-        					getGameBoard().player2.setnumOfobj(getGameBoard().player2.getnumOfobj()+1);
+        					Board.player2.setnumOfobj(Board.player2.getnumOfobj()+1);
        						
+        					sourceObject=null;
         					p2movedObj++;
-        					System.out.println(p2movedObj);
         					if(p2movedObj==Board.maxObj||getGameBoard().player2.getStorage().isEmpty()==true) {
-        						getGameBoard().player2.setReady(true);
+        						Board.player2.setReady(true);
         					}
+        					
+        				}
+        				else {
+	                		getBoardPanel().getStoragePanel(sourceObject.getPlayer(), sourceObject.getCellNum()).assignChampion(getGameBoard(), sourceObject);
+        					sourceObject=null;
+	                		System.out.println("You cannot place the champion there. \n You may place your champions on your side only.");
         				}
                      }
                     
@@ -359,6 +379,7 @@ public final class Table extends JFrame{
 	              		        }
 	                      }
 	                );
+                    }
                 }
                 
                 @Override
@@ -564,6 +585,43 @@ public final class Table extends JFrame{
     	return this.StoragePanel;
     }
     
+}
 
+class Console {
+
+    JTextArea textArea;
+    private static final Dimension LOG_FRAME_DIMENSION = new Dimension(30, 100);
     
+    public Console(JFrame frame) throws Exception {
+   	
+        textArea = new JTextArea(35, 80);
+        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        textArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setSize(LOG_FRAME_DIMENSION);
+        frame.add(scrollPane, BorderLayout.EAST);
+        scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {  
+            public void adjustmentValueChanged(AdjustmentEvent e) {  
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());  
+            }
+        });
+        redirectOut();
+
+    }
+
+    public PrintStream redirectOut() {
+        OutputStream out = new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                textArea.append(String.valueOf((char) b));
+            }
+        };
+        PrintStream ps = new PrintStream(out);
+        
+        System.setOut(ps);
+        System.setErr(ps);
+
+        return ps;
+    }
+
 }

@@ -483,27 +483,42 @@ public final class Table extends JFrame{
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);       
         	
-        	if(this.getTileObject()!=null && this.getTileObject().getHealth()>0) {
+        	if(this.getTileObject()!=null && this.getTileObject().isAlive()==true && this.getTileObject().getHealth()>0) {
         		int damaged=0;
         		 g.setColor(Color.RED);
-        	if(this.getTileObject().getHealth()<this.getTileObject().getMaxHealth()*0.9 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.7) {
+        	if(this.getTileObject().getHealth()<this.getTileObject().getMaxHealth()*0.9 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.8) {
               	damaged=1;}
-            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.7 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.5) {
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.8 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.7) {
             	damaged=2;}
-            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.5 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.3) {
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.7 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.6) {
             	damaged=3;}
-            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.3 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0) {
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.6 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.5) {
             	damaged=4;}
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.5 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.4) {
+            	damaged=5;}
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.4 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.3) {
+            	damaged=6;}
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.3 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.2) {
+            	damaged=7;}
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.2 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0.1) {
+            	damaged=8;}
+            	else if(this.getTileObject().getHealth()<=this.getTileObject().getMaxHealth()*0.1 && this.getTileObject().getHealth()>this.getTileObject().getMaxHealth()*0) {
+            	damaged=9;}
             	else if(this.getTileObject().getHealth()<=0) {
             		this.getTileObject().setAlive(false);
             		this.removeAll();
             	}
         	
         	if(damaged==0) {g.fillRect(0, 43, 60, 3);}
-        	else if(damaged==1) {g.fillRect(0,43,50,3);}
-        	else if(damaged==2) {g.setColor(Color.decode("#CD6155"));g.fillRect(0, 43, 45, 3);}
-        	else if(damaged==3) {g.setColor(Color.decode("#A93226"));g.fillRect(0, 43, 30, 3);}
-        	else if(damaged==4) {g.setColor(Color.decode("#641E16"));g.fillRect(0, 43, 15, 3);}
+        	else if(damaged==1) {g.fillRect(0,43,54,3);}
+        	else if(damaged==2) {g.fillRect(0, 43, 48, 3);}
+        	else if(damaged==3) {g.setColor(Color.decode("#CD6155"));g.fillRect(0, 43, 42, 3);}
+        	else if(damaged==4) {g.setColor(Color.decode("#CD6155"));g.fillRect(0, 43, 36, 3);}
+        	else if(damaged==5) {g.setColor(Color.decode("#A93226"));g.fillRect(0, 43, 30, 3);}
+        	else if(damaged==6) {g.setColor(Color.decode("#A93226"));g.fillRect(0, 43, 24, 3);}
+        	else if(damaged==7) {g.setColor(Color.decode("#A93226"));g.fillRect(0, 43, 18, 3);}
+        	else if(damaged==8) {g.setColor(Color.decode("#641E16"));g.fillRect(0, 43, 12, 3);}
+        	else if(damaged==9) {g.setColor(Color.decode("#641E16"));g.fillRect(0, 43, 6, 3);}
         	}
           }
     }

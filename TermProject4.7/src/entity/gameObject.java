@@ -200,13 +200,46 @@ public class gameObject extends JFrame implements Runnable  {
 		}
 		else {}*/
 		
-		int newId = x*10 + y;
+		int newId;
 		BoardManager.ENTITIES_ONBOARD[oldX][oldY]=null;
 		BoardManager.ENTITIES_ONBOARD[x][y]=this;
 		
 		
 		newId = 10*x+y;
-		this.drawMove(presentObject, oldId, newId); 
+		
+		if(oldId!=newId) this.drawMove(presentObject, oldId, newId);
+		else { //if cannot move toward target, move one step to any available tile
+			if(available(x-1,y)) {
+				x=x-1;
+			}
+			else if(available(x+1,y)) {
+				x=x+1;
+			}
+			else if(available(x,y+1)){
+				y=y+1;
+			}
+			else if(available(x,y-1)){
+				y=y-1;
+			}
+			else if(available(x-1,y-1)) {
+				x=x-1; y=y-1;
+			}
+			else if(available(x+1,y+1)) {
+				x=x+1; y=y+1;
+			}
+			else if(available(x-1,y+1)){
+				x=x-1; y=y+1;
+			}
+			else if(available(x+1,y-1)){
+				x=x+1; y=y-1;
+			}
+			else {
+				System.out.println("no where to go");
+			}
+			newId = 10*x+y;		
+			if(oldId!=newId) this.drawMove(presentObject, oldId, newId);
+			
+		}
         SwingUtilities.invokeLater
         (
              new Runnable()  {

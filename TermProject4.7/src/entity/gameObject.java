@@ -25,7 +25,7 @@ public class gameObject extends JFrame implements Runnable  {
 	private int range;
 	private String skillname= new String("");
 	private int skilltime;
-	private long atktime; // in millisecond
+	private int atktime; // in millisecond
 	private int health;
 	private int maxHealth;
 	private int x;
@@ -35,6 +35,8 @@ public class gameObject extends JFrame implements Runnable  {
 	private boolean isAlive=true;
 	private boolean isSelected = false;
 	private gameObject presentObject=this;
+	private boolean isSkillActive = false;
+	private boolean isSkillTarget = false;
 
 	//constructor
 	public gameObject() {
@@ -253,13 +255,7 @@ public class gameObject extends JFrame implements Runnable  {
               }
              }
         );
-        try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+
 		
 /*
 		int oldX, oldY;
@@ -377,6 +373,12 @@ public class gameObject extends JFrame implements Runnable  {
 			}
 			if(count==this.getSkilltime()) { //whenever it attacks certain amount of times, use the skill
 				this.skill(target);
+				this.setSkillActive(true);
+				this.setSkillTarget(target, true);
+				try {Thread.sleep(this.getAtktime());//rest for its attack speed
+				} catch (InterruptedException e) {}
+				this.setSkillActive(false);
+				this.setSkillTarget(target, false);
 				count=0;
 			}
 	    	if(isInrange(target)) {
@@ -384,13 +386,9 @@ public class gameObject extends JFrame implements Runnable  {
 				count++;
 				try {Thread.sleep(this.getAtktime());//rest for its attack speed
 				} catch (InterruptedException e) {}
+				
 			}
 			else {//move to target
-				Random rng= new Random();
-				int num=rng.nextInt(100);//make random hesitation to avoid moving same spot at the same time.
-				try {
-					Thread.sleep(num);
-				} catch (InterruptedException e1) {}
 				move(target);
 				System.out.println(Board.colorName(this)+" moved to "+this.getX()+", "+this.getY());	
 				try {
@@ -488,11 +486,11 @@ public class gameObject extends JFrame implements Runnable  {
 		this.cellNumber = cellNumber;
 	}
 
-	public long getAtktime() {
+	public int getAtktime() {
 		return atktime;
 	}
 
-	public void setAtktime(long atktime) {
+	public void setAtktime(int atktime) {
 		this.atktime = atktime;
 	}
 
@@ -542,6 +540,22 @@ public class gameObject extends JFrame implements Runnable  {
 	
 	public int getCellNum() {
 		return this.cellNumber;
+	}
+	
+	public void setSkillActive(boolean isActive) {
+		this.isSkillActive = isActive;
+	}
+	
+	public boolean getSkillActive() {
+		return this.isSkillActive;
+	}
+	
+	public void setSkillTarget(gameObject target, boolean isTarget) {
+		target.isSkillTarget = isTarget;
+	}
+	
+	public boolean getSkillTarget() {
+		return this.isSkillTarget;
 	}
 	
 	public void setSelected(boolean selected) {

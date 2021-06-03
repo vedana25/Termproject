@@ -17,6 +17,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
 import gui.Table;
 import runGame.runGame;
@@ -382,6 +384,9 @@ public final class Table extends JFrame{
         void drawTile(final Board board) {
             assignTileColor();
             if(this.getTileObject()!=null && this.getTileObject().isAlive()==true) labeling();
+            else if(this.getTileObject()==null||
+            		this.getTileObject().getHealth()<=0||
+            		this.getTileObject().isAlive()==false) {this.setBorder(null);}
             validate();
             repaint();
         }
@@ -416,12 +421,25 @@ public final class Table extends JFrame{
 			}
 			
             Image fitImage = image.getScaledInstance(40, 30, Image.SCALE_AREA_AVERAGING);
-            JLabel name = new JLabel(Entity.getName());
+            JLabel skill = new JLabel(" ");
             JLabel icon = new JLabel(new ImageIcon(fitImage));
             JLabel hp = new JLabel();
             JLabel blank = new JLabel(" ");
             hp.setText("HP: "+Entity.getHealth());
-            name.setFont(new Font("Verdana", Font.BOLD, 7));
+            skill.setFont(new Font("Verdana", Font.BOLD, 7));
+            
+            if(Entity.getSkillActive()==true) {
+            	skill.setText(Entity.getSkillname());
+            	Border border = new LineBorder(Color.ORANGE, 2, true);
+            	this.setBorder(border);
+            }
+            else if(Entity.getSkillTarget()==true) {
+            	Border targetBorder = new LineBorder(Color.RED, 2, true);            	
+            	this.setBorder(targetBorder);
+            }else {
+            	this.setBorder(null);
+            }
+            
             hp.setFont(new Font("Verdana", Font.BOLD, 7));
             blank.setFont(new Font("Verdana", Font.BOLD, 7));
             //damageColor(hp);
@@ -430,7 +448,7 @@ public final class Table extends JFrame{
             gbc.gridy=0;
             gbc.gridwidth = 3;
             gbc.gridheight = 2;
-            add(name, gbc);
+            add(skill, gbc);
             gbc.gridx=0;  
             gbc.gridy=2;
             gbc.gridwidth = 3;

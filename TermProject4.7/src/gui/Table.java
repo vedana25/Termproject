@@ -258,6 +258,7 @@ public final class Table extends JFrame{
         }
         
         public void assignChampion(final Board board, final gameObject Entity) {
+        	this.removeAll();
         	String p;
         	if(Entity.getPlayer()==Board.player1) p = "p1";
         	else p = "p2";
@@ -268,7 +269,8 @@ public final class Table extends JFrame{
             } catch(final IOException e) {
                 e.printStackTrace();
             }
-        	
+        	this.revalidate();
+        	this.repaint();
             SwingUtilities.invokeLater
             (
                  new Runnable()  {
@@ -379,7 +381,7 @@ public final class Table extends JFrame{
 
         void drawTile(final Board board) {
             assignTileColor();
-            if(this.getTileObject()!=null) labeling();
+            if(this.getTileObject()!=null && this.getTileObject().isAlive()==true) labeling();
             validate();
             repaint();
         }

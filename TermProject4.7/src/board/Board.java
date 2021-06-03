@@ -121,21 +121,13 @@ public class Board {
 						BoardManager.ENTITIES_ONBOARD[i][j]=null;
 					}
 					e.setInstorage(true);
+					e.setAlive(true);
 					e.setHealth(e.getMaxHealth());
 				}
 
 			}
 		}
 		
-        SwingUtilities.invokeLater
-        (
-             new Runnable()  {
-                  public void run()     {
-                	  gameTable.getBoardPanel().drawBoard(gameTable.getGameBoard());			
-						          					
-      		        }
-              }
-        );
 	}
 	
 	

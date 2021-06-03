@@ -89,8 +89,6 @@ public class gameObject extends JFrame implements Runnable  {
 		if(target.getHealth()-this.getAtk()>=0) {
 			target.setHealth(target.getHealth()-this.getAtk());
 			Board.printOnlog(this,target,this.getAtk());
-			
-	        
 		}
 		else {
 			target.setHealth(0);
@@ -209,37 +207,44 @@ public class gameObject extends JFrame implements Runnable  {
 		
 		if(oldId!=newId) this.drawMove(presentObject, oldId, newId);
 		else { //if cannot move toward target, move one step to any available tile
-			if(available(x-1,y)) {
-				x=x-1;
-			}
-			else if(available(x+1,y)) {
-				x=x+1;
-			}
-			else if(available(x,y+1)){
-				y=y+1;
-			}
-			else if(available(x,y-1)){
-				y=y-1;
-			}
-			else if(available(x-1,y-1)) {
-				x=x-1; y=y-1;
-			}
-			else if(available(x+1,y+1)) {
-				x=x+1; y=y+1;
-			}
-			else if(available(x-1,y+1)){
-				x=x-1; y=y+1;
-			}
-			else if(available(x+1,y-1)){
-				x=x+1; y=y-1;
-			}
-			else {
-				System.out.println("no where to go");
+			while(oldId==newId) {
+			Random random= new Random();
+			int num=random.nextInt(8);
+			switch(num){
+			case 0: if(available(x-1,y)) {
+					x=x-1;
+				}break;
+				
+			case 1:	if(available(x+1,y)) {
+					x=x+1;
+				}
+			case 2:	if(available(x,y+1)){
+					y=y+1;
+				}
+			case 3:	 if(available(x,y-1)){
+					y=y-1;
+				}
+			case 4:	 if(available(x-1,y-1)) {
+					x=x-1; y=y-1;
+				}
+			case 5:	 if(available(x+1,y+1)) {
+					x=x+1; y=y+1;
+				}
+			case 6:	 if(available(x-1,y+1)){
+					x=x-1; y=y+1;
+				}
+			case 7:	 if(available(x+1,y-1)){
+					x=x+1; y=y-1;
+				}
+				else {
+					System.out.println("no where to go");
+				}
 			}
 			newId = 10*x+y;		
 			if(oldId!=newId) this.drawMove(presentObject, oldId, newId);
-			
+			}
 		}
+		
         SwingUtilities.invokeLater
         (
              new Runnable()  {
@@ -382,7 +387,7 @@ public class gameObject extends JFrame implements Runnable  {
 			}
 			else {//move to target
 				Random rng= new Random();
-				int num=rng.nextInt(200);//make random hesitation to avoid moving same spot at the same time.
+				int num=rng.nextInt(100);//make random hesitation to avoid moving same spot at the same time.
 				try {
 					Thread.sleep(num);
 				} catch (InterruptedException e1) {}

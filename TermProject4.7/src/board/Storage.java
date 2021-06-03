@@ -10,6 +10,7 @@ public class Storage {
 	//maximum number of storage cells for an player:10
 	public HashMap<String, Integer> numOfObjects = new HashMap<>(); 
 	public HashMap<Integer,Boolean> isTaken= new HashMap<>(); //store the information about whether the cells are already taken.
+	
 	public int firstEmpty() {
 		for(int i=0;i<10;i++) {
 			if(!isTaken.containsKey(i)) {

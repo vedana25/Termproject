@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import gui.Table;
+import runGame.runGame;
 import board.Battle;
 import board.Board;
 import board.BoardManager;
@@ -54,7 +55,7 @@ public final class Table extends JFrame{
     private Color downLightTileColor = Color.decode("#BFCDCA");
     private Color downDarkTileColor = Color.decode("#AAB8B8");
 	
-    private final JFrame gameFrame;
+    public final JFrame gameFrame;
 
     public Table(Board game) {
     	this.battleBoard=game;
@@ -68,8 +69,19 @@ public final class Table extends JFrame{
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
         center(this.gameFrame);
     	this.gameFrame.setVisible(true);
-    	getBoardPanel().drawBoard(getGameBoard());
-    	this.start = JOptionPane.showConfirmDialog(null, getGameBoard().popupScore(), "Start new game?", 0);
+    	
+        SwingUtilities.invokeLater
+        (
+             new Runnable()  {
+                  public void run()     {
+                	  getBoardPanel().drawBoard(getGameBoard());		
+						          					
+      		        }
+              }
+        );
+    	
+    	this.start = JOptionPane.showConfirmDialog(null, game.popupScore(), "Start new game?", 0);
+    	if(this.start !=0) System.exit(0);
 	 }
  
     
@@ -187,7 +199,6 @@ public final class Table extends JFrame{
                         sourceObject = null;
                     } else if (isLeftMouseButton(event)) {
                     	sourceObject = EntityObject;
-            			System.out.println(EntityObject);
 
        					//Remove from Storage
        					panel.removeAll();
@@ -242,13 +253,13 @@ public final class Table extends JFrame{
         }
         
         void assignTileColor() {
-		    if(player == battleBoard.player1 )setBackground((this.storageId)%2==0 ? Color.decode("#85929E") : Color.decode("#5D6D7E"));
+		    if(player == Board.player1 )setBackground((this.storageId)%2==0 ? Color.decode("#85929E") : Color.decode("#5D6D7E"));
 		    else setBackground((this.storageId)%2!=0 ? Color.decode("#85929E") : Color.decode("#5D6D7E"));
         }
         
         public void assignChampion(final Board board, final gameObject Entity) {
         	String p;
-        	if(Entity.getPlayer()==board.player1) p = "p1";
+        	if(Entity.getPlayer()==Board.player1) p = "p1";
         	else p = "p2";
         	
             try{
@@ -298,25 +309,25 @@ public final class Table extends JFrame{
                     } else if (isLeftMouseButton(event)) {
 
                     	//Assign Name Label to the tile
-                    	tilePanel.assignChampion(battleBoard, sourceObject);
+
                     	tilePanel.setTileObject(sourceObject);
                     	
                     	//Taking out the gameObject to the board
         				int cellNum = sourceObject.getCellNumber();
-        				if(sourceObject.getPlayer()==battleBoard.player1) { //Player 1
+        				if(sourceObject.getPlayer()==Board.player1) { //Player 1
         					getGameBoard().storage1.takeOut(cellNum, row, col);
-
+        					
         					BoardManager.ENTITIES_ONBOARD[row][col] = getGameBoard().storage1.get(cellNum);
-        					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(getGameBoard().player1);//temporary code
+        					BoardManager.ENTITIES_ONBOARD[row][col].setPlayer(Board.player1);//temporary code
         					BoardManager.ENTITIES_ONBOARD[row][col].setInstorage(false);   		
         					        					
-        					getGameBoard().player1.setnumOfobj(getGameBoard().player1.getnumOfobj()+1);
+        					Board.player1.setnumOfobj(Board.player1.getnumOfobj()+1);
 
 							//If the number of gameOject on board reach the limit, set ready
         					p1movedObj++;
         					System.out.println(p1movedObj);
-        					if(p1movedObj==Board.maxObj||getGameBoard().player1.getStorage().isEmpty()==true) {
-        						getGameBoard().player1.setReady(true);
+        					if(p1movedObj==Board.maxObj||Board.player1.getStorage().isEmpty()==true) {
+        						Board.player1.setReady(true);
         					}
 
         				}
@@ -436,54 +447,6 @@ public final class Table extends JFrame{
             if(this.getTileObject()==null || this.getTileObject().getHealth()<=0) this.removeAll();
             revalidate();
             repaint();
-        }
-        
-        public void assignChampion(final Board board, final gameObject Entity) {
-        	String player="p1";
-        	if(Entity==null)System.out.println("null");
-        	if(Entity.getPlayer()==board.player1) player = "p1";
-        	else player = "p2";
-        	GridBagConstraints gbc = new GridBagConstraints();
-        	gbc.fill = GridBagConstraints.BOTH;
-            try{
-                final BufferedImage image = ImageIO.read(new File("art/champions/"+ player + Entity.getName()+".png"));
-                Image fitImage = image.getScaledInstance(40, 30, Image.SCALE_AREA_AVERAGING);
-                JLabel name = new JLabel(Entity.getName());
-                JLabel icon = new JLabel(new ImageIcon(fitImage));
-                JLabel hp = new JLabel();
-                JLabel blank = new JLabel(" ");
-                hp.setText("HP: "+Entity.getHealth());
-                name.setFont(new Font("Verdana", Font.BOLD, 7));
-                hp.setFont(new Font("Verdana", Font.BOLD, 7));
-                blank.setFont(new Font("Verdana", Font.BOLD, 7));
-                
-
-                gbc.gridx=0;  
-                gbc.gridy=0;
-                gbc.gridwidth = 3;
-                gbc.gridheight = 2;
-                add(name, gbc);
-                gbc.gridx=0;  
-                gbc.gridy=2;
-                gbc.gridwidth = 3;
-                gbc.gridheight = 4;
-                add(icon, gbc);
-                gbc.gridx=0;  
-                gbc.gridy=6;
-                gbc.gridwidth = 3;
-                gbc.gridheight = 2;
-                add(hp, gbc);
-                gbc.gridx=0;
-                gbc.gridy=10;
-                gbc.gridwidth=3;
-                gbc.gridheight=1;
-                add(blank, gbc);
-
-            } catch(final IOException e) {
-                e.printStackTrace();
-            }
-            
-        	
         }
         
         public void damageColor(JLabel label) { 

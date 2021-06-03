@@ -31,8 +31,6 @@ public class Board {
 	
 	HashMap<Integer, gameObject> EntityMap;
 	
-	private static int finished=0;
-
 	public Board() {
 		this.initialize();	
 	}
@@ -77,13 +75,11 @@ public class Board {
 	public Storage getStorage2() {
 		return this.storage2;
 	}
-	public void setFinish(int isfinish) {
-		finished=isfinish;
-	}
+
 	
 	//Print ROUND # and Score
 	public void printScore() {
-		int presentRound = round+1;
+		System.out.println("ROUND "+round);
 		System.out.println("SCORE "+player1.getNumOfWin()+" : "+player2.getNumOfWin());
 		System.out.println("Player1 HP: " + player1.getHp());
 		System.out.println("Player2 HP: " + player2.getHp());
@@ -92,8 +88,7 @@ public class Board {
 	//GUI Version Print ROUND # and Score
 	public String popupScore() {
 		String message;
-		int presentRound = round+1;
-		message = "ROUND "+presentRound+
+		message = "ROUND "+round+
 		"\nSCORE "+player1.getNumOfWin()+" : "+player2.getNumOfWin() +
 		"\nPlayer1 HP: " + player1.getHp() +
 		"\nPlayer2 HP: " + player2.getHp();
@@ -103,43 +98,27 @@ public class Board {
 	//move all objects on the board to the storages after end of a round
 	public void clearBoard(Table gameTable) {
 		
-		this.player1.setnumOfobj(0);
-		this.player2.setnumOfobj(0);
+		Board.player1.setnumOfobj(0);
+		Board.player2.setnumOfobj(0);
 
 		for(int i=0;i<10;i++) {
 			for(int j=0;j<10;j++) {
 				gameTable.getBoardPanel().getTilePanel(10*i+j).removeAll();
 				gameTable.getBoardPanel().getTilePanel(10*i+j).setTileObject(null);
 				
-                SwingUtilities.invokeLater
-                (
-                     new Runnable()  {
-                          public void run()     {
-                        	  gameTable.getBoardPanel().drawBoard(gameTable.getGameBoard());			
-      						          					
-              		        }
-                      }
-                );
-				
 				if(BoardManager.ENTITIES_ONBOARD[i][j]!=null) {
 					gameObject e=BoardManager.ENTITIES_ONBOARD[i][j];
-					if(e.getPlayer()==gameTable.getGameBoard().player1) {
-						int cellNum = storage1.firstEmpty();
-						gameTable.getBoardPanel().getStoragePanel(e.getPlayer(), cellNum).assignChampion(gameTable.getGameBoard(), e);
-						e.setCellNum(cellNum);
+					if(e.getPlayer()==Board.player1) {
+						gameTable.getBoardPanel().getStoragePanel(e.getPlayer(), e.getCellNum()).assignChampion(gameTable.getGameBoard(), e);
 						e.setInstorage(true);	
-						storage1.isTaken.put(cellNum,true);
+						storage1.isTaken.put(e.getCellNum(),true);
 						BoardManager.ENTITIES_ONBOARD[i][j]=null;
 					}
 					else {
-						int cellNum = storage2.firstEmpty();
-						gameTable.getBoardPanel().getStoragePanel(e.getPlayer(), cellNum).assignChampion(gameTable.getGameBoard(), e);
-						e.setCellNum(cellNum);
+						gameTable.getBoardPanel().getStoragePanel(e.getPlayer(), e.getCellNum()).assignChampion(gameTable.getGameBoard(), e);
 						e.setInstorage(true);	
-						storage2.isTaken.put(cellNum,true);
+						storage2.isTaken.put(e.getCellNum(),true);
 						BoardManager.ENTITIES_ONBOARD[i][j]=null;
-
-
 					}
 					e.setInstorage(true);
 					e.setHealth(e.getMaxHealth());
@@ -147,32 +126,44 @@ public class Board {
 
 			}
 		}
+		
+        SwingUtilities.invokeLater
+        (
+             new Runnable()  {
+                  public void run()     {
+                	  gameTable.getBoardPanel().drawBoard(gameTable.getGameBoard());			
+						          					
+      		        }
+              }
+        );
 	}
 	
 	
 	
 	//judge which player won the game
-	public boolean judge() {
+	public boolean judge(Table gameTable) {
 		if(player1.getHp()==0 || player2.getHp()==0) {
 			this.printScore();
 			if(player1.getHp()==0 && player2.getHp()==0) {
 				System.out.println("Final Result: Draw");
-				JOptionPane.showMessageDialog(null, "Final Result: Draw", "Final Winner", 0);
+				JOptionPane.showMessageDialog(null, "Final Result: Draw", "Final Winner", 0); System.exit(0);
 				return true;				
 			}
 			else if(player1.getHp()==0) {
 				System.out.println("Final Winner: Player2");
-				JOptionPane.showMessageDialog(null, "Final Winner: Player2", "Final Winner", 0);
+				JOptionPane.showMessageDialog(null, "Final Winner: Player2", "Final Winner", 0); System.exit(0);
 				return true;
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "Final Winner: Player1", "Final Winner", 0);
+				JOptionPane.showMessageDialog(null, "Final Winner: Player1", "Final Winner", 0); System.exit(0);
 				return true;
 			}
 		}else {
 			round++;
-			System.out.println("PREPARE FOR THE NEXT ROUND!");
-			JOptionPane.showMessageDialog(null, "PREPARE FOR THE NEXT ROUND!");
+			printScore();
+			System.out.println("Continue?");
+			int willContinue = JOptionPane.showConfirmDialog(null, popupScore(),"Continue?", JOptionPane.INFORMATION_MESSAGE);
+			if(willContinue != 0) System.exit(0);
 			return false;
 		}
 	}
@@ -183,14 +174,14 @@ public class Board {
 		if(whoWin==1) {
 			player2.setHp(player2.getHp()-50);
 			player1.setNumOfWin(player1.getNumOfWin()+1);
-			JOptionPane.showMessageDialog(null, "Player1 Win!", round+"round Winner", 0);
+			JOptionPane.showMessageDialog(null, "Player1 Win!", round+"round Winner", JOptionPane.INFORMATION_MESSAGE);
 			System.out.println("Player1 Win!");
 			System.out.println("---------------------------------------------------------------------");
 		}
 		else if(whoWin==2) {
 			player1.setHp(player1.getHp()-50);
 			player2.setNumOfWin(player2.getNumOfWin()+1);		
-			JOptionPane.showMessageDialog(null, "Player2 Win!", round+"round Winner", 0);
+			JOptionPane.showMessageDialog(null, "Player2 Win!", round+"round Winner", JOptionPane.INFORMATION_MESSAGE);
 			System.out.println("Player2 Win!");
 			System.out.println("---------------------------------------------------------------------");
 		}
@@ -198,7 +189,7 @@ public class Board {
 			player1.setHp(player1.getHp()-50);
 			player2.setHp(player1.getHp()-50);
 			System.out.println("Draw!");
-			JOptionPane.showMessageDialog(null, "Draw!", round+"round Winner", 0);
+			JOptionPane.showMessageDialog(null, "Draw!", round+"round Winner", JOptionPane.INFORMATION_MESSAGE);
 			System.out.println("---------------------------------------------------------------------");	
 		}
 		

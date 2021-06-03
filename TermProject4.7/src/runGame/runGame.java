@@ -18,7 +18,7 @@ public class runGame extends Thread{
 	Thread randomShop;
 	
 	public static void main (String[] args) {
-	
+		
 		Thread startgame=new runGame();
 		startgame.start();
 		
@@ -31,6 +31,8 @@ public class runGame extends Thread{
 			startgame.interrupt();
 		}
 	}
+	
+	
 	public int wantTostart(Table gameTable) {
 		return gameTable.start;
 	}
@@ -76,7 +78,7 @@ public class runGame extends Thread{
 				
 		        game.endRound(Battle.whoWin,gameTable);
 		        
-		        if(game.judge()==true) {
+		        if(game.judge(gameTable)==true) {
 		        	game.isFinish=true;
 		        }       
 			}

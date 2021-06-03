@@ -221,8 +221,7 @@ public class RandomShop extends JFrame implements Runnable{
                 		if(Entity.getSelected()==false) {
 	                		int cellNumber=player.getStorage().firstEmpty();
 	                		player.getStorage().takeIn(cellNumber, Entity);	                		
-	                		Entity.setInstorage(true);
-	                		
+	                		Entity.setInstorage(true);	                		
 	                		Entity.setPlayer(player);
 	                		
 	                		gameTable.getBoardPanel().getStoragePanel(player, cellNumber).assignChampion(board, Entity);
@@ -231,20 +230,17 @@ public class RandomShop extends JFrame implements Runnable{
 	        				Entity.setSelected(true);
 	        				setVisible(false);
 	        				levelUp = false;
-	        				player.getStorage().numOfObjects.forEach((k,v) -> {
-	        	    		    System.out.println("key: "+k);
-	        	    		    System.out.println("val: "+ v);
-	        	    		    System.out.println(Entity);
-	        				});
 	        				
 	        				String objectName="";
 	        		            Iterator<Map.Entry<String, Integer>>iterator = player.getStorage().numOfObjects.entrySet().iterator();
 	        		                while (iterator.hasNext()) {
 	        		                	Map.Entry<String, Integer> entry= iterator.next();
 	        				    		if(entry.getValue()==3) {
-			        	    		    	if(entry.getKey().substring(entry.getKey().length()-1)!="3") levelUp = true;
-			        	    		    	entry.setValue(0);
-			        	    		    	objectName = entry.getKey();
+			        	    		    	if(!entry.getKey().substring(entry.getKey().length()-1).equals("3")) {
+			        	    		    		levelUp = true;
+			        	    		    		entry.setValue(0);
+			        	    		    		objectName = entry.getKey();
+			        	    		    	}
 	        				    		}
 	        		                }
 		        				
@@ -256,7 +252,7 @@ public class RandomShop extends JFrame implements Runnable{
 		        		            Iterator<Map.Entry<String, Integer>>iterator2 = player.getStorage().numOfObjects.entrySet().iterator();
 		        		                while (iterator2.hasNext()) {
 		        		                	Map.Entry<String, Integer> entry= iterator2.next();
-		        				    		if(entry.getValue()==3) {
+		        				    		if(entry.getValue()==3&&!entry.getKey().substring(entry.getKey().length()-1).equals("3")) {
 				        	    		    	levelUp = true;
 				        	    		    	objectName = entry.getKey();
 		        				    		}
@@ -314,24 +310,28 @@ public class RandomShop extends JFrame implements Runnable{
 	        	String newObjectName = name.substring(0,name.length()-1)+newLevel;
 	        	gameObject newObject = getGameObject(newObjectName);
 	            int cellNumber=player.getStorage().firstEmpty();
-		    	newObject.setCellNum(cellNumber);
 		    	
 	            //Take higher-level champion into Storage
 		    	player.getStorage().takeIn(cellNumber, newObject);
 		    	
-		    	//Assign icon
-		    	if(player==gameTable.getGameBoard().player1)newObject.setPlayer(gameTable.getGameBoard().player1);
-		    	else newObject.setPlayer(gameTable.getGameBoard().player2);
+		    	gameTable.getGameBoard();
+				//Assign icon
+		    	if(player==Board.player1) {
+					gameTable.getGameBoard();
+					newObject.setPlayer(Board.player1);
+				} else {
+					gameTable.getGameBoard();
+					newObject.setPlayer(Board.player2);
+				}
 		    	gameTable.getBoardPanel().getStoragePanel(player, cellNumber).assignChampion(board, newObject);  
 		    	
 		    	levelUp = false;
 		    	String objectName2="";
-				System.out.println("Test");
 	            Iterator<Map.Entry<String, Integer>>iterator2 = player.getStorage().numOfObjects.entrySet().iterator();
 	                while (iterator2.hasNext()) {
 	                	Map.Entry<String, Integer> entry= iterator2.next();
 			    		if(entry.getValue()==3) {
-			    			if(entry.getKey().substring(entry.getKey().length()-1)!="3") levelUp = true;
+			    			if(!entry.getKey().substring(entry.getKey().length()-1).equals("3")) levelUp = true;
     	    		    	objectName2 = entry.getKey();
 			    		}
 	                }

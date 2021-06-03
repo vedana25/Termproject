@@ -321,7 +321,6 @@ public class gameObject extends JFrame implements Runnable  {
     public void drawMove(gameObject movingObject, int oldId, int newId) {    	
   	  runGame.getTable().getBoardPanel().getTilePanel(oldId).removeAll();
   	  runGame.getTable().getBoardPanel().getTilePanel(oldId).setTileObject(null);
-  	  runGame.getTable().getBoardPanel().getTilePanel(newId).assignChampion(runGame.getTable().getGameBoard(), movingObject);
   	  runGame.getTable().getBoardPanel().getTilePanel(newId).setTileObject(movingObject);
   	  //BoardManager.ENTITIES_ONBOARD[oldId/10][oldId%10]=null;
   	  //BoardManager.ENTITIES_ONBOARD[newId/10][newId%10]=this;
@@ -367,7 +366,6 @@ public class gameObject extends JFrame implements Runnable  {
 		if(this.getHealth()<=0) {
 			this.setAlive(false);
 			this.getPlayer().setnumOfobj(this.getPlayer().getnumOfobj()-1);
-			//this.getPlayer().getStorage().isTaken.remove(this.getCellNumber()); ?
 		}
 	}
 	

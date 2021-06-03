@@ -329,7 +329,6 @@ public final class Table extends JFrame{
 
 							//If the number of gameOject on board reach the limit, set ready
         					p1movedObj++;
-        					System.out.println(p1movedObj);
         					if(p1movedObj==Board.maxObj||Board.player1.getStorage().isEmpty()==true) {
         						Board.player1.setReady(true);
         					}
@@ -343,7 +342,6 @@ public final class Table extends JFrame{
         					getGameBoard().player2.setnumOfobj(getGameBoard().player2.getnumOfobj()+1);
        						
         					p2movedObj++;
-        					System.out.println(p2movedObj);
         					if(p2movedObj==Board.maxObj||getGameBoard().player2.getStorage().isEmpty()==true) {
         						getGameBoard().player2.setReady(true);
         					}

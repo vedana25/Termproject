@@ -166,7 +166,7 @@ public class Board {
 	public void endRound(int whoWin, Table gameTable) {
 		
 		if(whoWin==1) {
-			player2.setHp(player2.getHp()-50);
+			player2.setHp(player2.getHp()-player1.getnumOfobj()*10);
 			player1.setNumOfWin(player1.getNumOfWin()+1);
 			JOptionPane.showMessageDialog(null, "Player1 Win!", round+"round Winner", JOptionPane.INFORMATION_MESSAGE);
 			System.out.println("Player1 Win!");
@@ -174,7 +174,7 @@ public class Board {
 		}
 		else if(whoWin==2) {
 			player1.setHp(player1.getHp()-50);
-			player2.setNumOfWin(player2.getNumOfWin()+1);		
+			player1.setHp(player1.getHp()-player2.getnumOfobj()*10);		
 			JOptionPane.showMessageDialog(null, "Player2 Win!", round+"round Winner", JOptionPane.INFORMATION_MESSAGE);
 			System.out.println("Player2 Win!");
 			System.out.println("---------------------------------------------------------------------");
@@ -190,10 +190,8 @@ public class Board {
 		this.clearBoard(gameTable);
 		Table.p1movedObj=0;
 		Table.p2movedObj=0;
-		//Table.p1=0;
-		//Table.p2=1;
-		gameTable.getGameBoard().player1.setReady(false);
-		gameTable.getGameBoard().player2.setReady(false);
+		player1.setReady(false);
+		player2.setReady(false);
 
 	}
 	

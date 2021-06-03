@@ -54,7 +54,9 @@ public class Board {
 		else if(damage>0) {
 			System.out.println(colorName(attacker)+" dealt "+damage+" damages to "+colorName(target)+"(Hp: "+ target.getHealth()+")"+" with: "+attacker.getSkillname());
 		}
-	}		
+		else System.out.println(colorName(attacker)+" healed "+-damage+" HP to "+colorName(target)+"(Hp: "+ target.getHealth()+")"+" with: "+attacker.getSkillname());
+	}	
+	
 	public static String colorName(gameObject object) {
 		String nameWithColor;
 		if(object.getPlayer()==player1) {

@@ -26,15 +26,15 @@ public class Healer extends gameObject{
 	public gameObject searchFriendly() {
 		gameObject target = null;
 		gameObject tempTarget= null;
-		int temp, closest=1000;
+		int temp, healthlowest=1000;
 		try {
 			for(int i=0;i<10;i++) {
 				for(int j=0;j<10;j++) {
 					tempTarget=BoardManager.ENTITIES_ONBOARD[i][j];
-					if(tempTarget!=this &&tempTarget!=null&&!isEnemy(this,tempTarget)&&tempTarget.getHealth()>0) {
-					temp=getDistance(this,tempTarget);
-						if(temp<closest){
-							closest=temp;
+					if(tempTarget!=this &&tempTarget!=null&&(!isEnemy(this,tempTarget))&&tempTarget.getHealth()>0) {
+					temp=tempTarget.getHealth();
+						if(temp<healthlowest){
+							healthlowest=temp;
 							target=tempTarget;
 						}
 						else {}
